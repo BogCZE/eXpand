@@ -20,6 +20,7 @@ using Fasterflect;
 using Xpand.Persistent.Base.Xpo;
 using Xpand.Utils.Helpers;
 using Xpand.Xpo.ConnectionProviders;
+using Xpand.Xpo.DB;
 
 namespace Xpand.Persistent.Base.General {
     public interface ISequenceObject {
@@ -322,10 +323,11 @@ namespace Xpand.Persistent.Base.General {
         }
 
         private IDataStoreSchemaExplorer GetDataStoreSchemaExplorer(XPObjectSpace xpObjectSpace) {
-            var connectionProvider = ((BaseDataLayer)xpObjectSpace.Session.DataLayer).ConnectionProvider;
-            var multiDataStoreProxy = connectionProvider as MultiDataStoreProxy;
-            if (multiDataStoreProxy != null)
-                return (IDataStoreSchemaExplorer)multiDataStoreProxy.DataStore;
+            var connectionProvider = (xpObjectSpace?.Session?.DataLayer as BaseDataLayer)?.ConnectionProvider;
+            IDataStoreProxy proxy = connectionProvider as IDataStoreProxy;
+            if (proxy != null) {
+                return proxy.DataStore as IDataStoreSchemaExplorer;
+            }
             return connectionProvider as IDataStoreSchemaExplorer;
         }
     }
